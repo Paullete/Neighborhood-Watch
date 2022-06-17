@@ -1,26 +1,28 @@
 from django.urls import path
-from . import views
-from neibour import views as user_views
-from django.conf.urls.static import static
-from django.conf import settings
+# from django.contrib import admin
+from .import views
+# from . import views as app_views
+
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('accounts/register/', views.register, name='register'),
+    path('',views.index ,name = 'index'),
     path('profile/', views.profile, name='profile'),
-    path('update_profile/', user_views.update_profile, name='update_profile'),
-    path('new_hood/', views.new_hood, name='new_hood'),
-    path('hood/', views.hood, name='hood'),
-    path('edithood/', views.edit_hood, name='edithood'),
-    path('businesses/<id>', views.businesses, name='hoodbusiness'),
-    path('singlehood/<id>', views.singlehood, name='singlehood'),
-    path('new_business/', views.newbiz, name='newbiz'),
-    path('post', views.post, name='post'),
-    path('hoodpost/<id>', views.posthood, name='hoodpost'),
-    path('joinhood/<id>', views.joinhood, name='joinhood'),
-    path('leavehood/<id>', views.leavehood, name='leavehood'),
+    path('accounts/profile/', views.index,name='index'),
+    path('update_profile/<int:id>',views.update_profile, name='update_profile'),
+    path('create_hood',views.create_hood, name= 'create_hood'),
+    path('hood/', views.hood, name = 'hood'),
+    path('hood/<str:name>',views.one_hood,name='one_hood'),
+    path('join_hood/<int:id>', views.join_hood, name='join_hood'),
+    path('leave_hood/<int:id>', views.leave_hood, name='leave_hood'),
+    path('businesses/',views.businesses, name='businesses'),
+    path('new_business/',views.new_business, name='new_business'),
+    path('authorities/',views.authorities, name='authorities'),
+    path('create_authorities/',views.create_authorities, name='create_authorities'),
+    path('health',views.health, name='health'),
+    path('post/', views.post, name = 'post'),
+    path('create_post', views.create_post, name='create_post'),
+    path('view/blog/(\d+)',views.view_blog,name='view_blog'),
+    path('search/',views.search_results, name='search_results'),
+    
+    
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL,
-                          document_root=settings.MEDIA_ROOT)
