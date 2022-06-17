@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+
+{% block content %}
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12 top-div" style="margin-top:40px;">
+      <h1 style="color:white;text-align:center; font-family: 'Joti One'">Authorities</h1>
+
+      <p style="text-align:center">Emergency Contacts. <br> Reach out any time. <br> Ready to HELP!!!</p>
+
+    </div>
+  </div>
+
+<div class="row">
+  {% for authority in authorities %}
+  <div class="col-md-6">
+  <div class="card" style="width: 20rem;width: 25rem;margin-top:10px; ">
+  <div class="card-body">
+      <h3 class="card-title" data-toggle="modal" data-target="#{{authority.id}}" style="font-family: 'Joti One'">{{authority.name}}</h3>
+
+      <img class="card-img-top" src="{{authority.photo.url}}" height=200 width=100 >
+
+      <p><span style="font-weight:bold;">Content:</span> {{authority.content|safe}}</p>
+  
+
+      
+  </div>
+
+        <h4 class="text-center">Contacts</h4>
+        <p>Phone Number: {{authority.contact}}</p>
+        <p>Address: {{authority.address}}</p>
+</div>
+</div>
+
+
+
+{% endfor %}
+</div>
+
+<style>
+  .bold{
+    font-weight: bold;
+  }
+  .container-fluid{
+          background-color: #0c3329;
+          color:black;
+        }
+  </style>
+
+</div>
+{% endblock %}
