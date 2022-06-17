@@ -1,136 +1,81 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
-from django.contrib import messages
+from django.shortcuts import get_object_or_404, render
+from django.http.response import HttpResponseRedirect
+from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
-from .forms import SignUpForm, UserUpdateForm, ProfileUpdateForm, NewHoodForm, EditHoodForm, NewBizForm, NewPostForm
-from .models import Profile, Neighbourhood, Business, Post
+from .models import *
 
+from hoodapp.forms import *
 
 # Create your views here.
-def home(request):
-    return render(request, 'home.html')
-
-
-def register(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            return redirect('home')
-    else:
-        form = SignUpForm()
-    return render(request, 'registration/registration_form.html', {'form': form})
-
-
 @login_required(login_url='/accounts/login/')
+def index(request):
+    
+    return render(request, 'index.html')
+
+@login_required(login_url="/accounts/login/")
 def profile(request):
-    if request.method == 'POST':
-        user_form = UserUpdateForm(request.POST, instance=request.user)
-        profile_form = ProfileUpdateForm(
-            request.POST, request.FILES, instance=request.user.profile)
-
-        if user_form.is_valid and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            messages.success(
-                request, f'Your account has been updated successfully!')
-            return redirect('profile')
-    else:
-        user_form = UserUpdateForm(instance=request.user)
-        profile_form = ProfileUpdateForm(instance=request.user.profile)
-    context = {
-        'user_form': user_form,
-        'profile_form': profile_form
-    }
-    return render(request, 'profile.html', context)
+    current_user = request.user
+    profile = Profile.objects.filter(user_id=current_user.id).first()
+    neighborhood = NeighborHood.objects.all()
+    businesses = Business.objects.filter(user_id=current_user.id)
+    return render(request, "profile.html", {"profile": profile, ' neighborhood':  neighborhood, 'businesses':businesses })
 
 
 @login_required(login_url='/accounts/login/')
-def update_profile(request):
+def update_profile(request,id):
+    user = User.objects.get(id=id)
+    profile = Profile.objects.get(user_id = user)
+    form = UpdateProfileForm(instance=profile)
+    if request.method == "POST":
+            form = UpdateProfileForm(request.POST,request.FILES,instance=profile)
+            if form.is_valid():
+                profile = form.save(commit=False)
+                profile.save()
+                return redirect('profile')
+    return render(request, 'update_profile.html', {"form":form}) 
+
+
+@login_required(login_url="/accounts/login/")
+def create_hood(request):
     current_user = request.user
     if request.method == 'POST':
-
-        user_form = UserUpdateForm(request.POST, instance=request.user)
-        profile_form = ProfileUpdateForm(
-            request.POST, request.FILES, instance=request.user)
-
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-
-            return redirect('profile')
-
+        hood_form = HoodForm(request.POST, request.FILES)
+        if hood_form.is_valid():
+            hood = hood_form.save(commit=False)
+            hood.user = current_user
+            hood.save()
+        return HttpResponseRedirect('/hood')
     else:
-        user_form = UserUpdateForm(instance=request.user)
-        profile_form = ProfileUpdateForm(instance=request.user)
+        hood_form = HoodForm()
+    context = {'hood_form':hood_form}
+    return render(request, 'hood_form.html',context)
 
-        context = {
-            'user_form': user_form,
-            'profile_form': profile_form
-
-        }
-
-    return render(request, 'update_profile.html', context)
-
-
-@login_required(login_url='/accounts/login/')
+@login_required(login_url="/accounts/login/")
 def hood(request):
-    hoods = Neighbourhood.objects.all()
-    return render(request, 'neighbourhoods.html', {"hoods": hoods})
-
+    current_user = request.user
+    hood = NeighborHood.objects.all().order_by('-id')
+    return render(request, 'hoods.html', {'hood': hood})
 
 @login_required(login_url='/accounts/login/')
-def new_hood(request):
-    current_user = request.user
-    if request.method == 'POST':
-        form = NewHoodForm(request.POST, request.FILES)
-        if form.is_valid():
-            image = form.save(commit=False)
-            image.admin = current_user.profile
+def one_hood(request,name):
+    hood = NeighborHood.objects.get(name=name)
+    businesses = Business.objects.filter(neighborhood=hood)
+    posts = Post.objects.filter(neighborhood=hood)
 
-            image.save()
-
-        return redirect('hood')
-
-    else:
-        form = NewHoodForm()
-    return render(request, 'new_hood.html', {"form": form})
-
-
-def edit_hood(request):
-    current_user = request.user
-    if request.method == 'POST':
-        form = EditHoodForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            image = form.save(commit=False)
-            image.admin = current_user.profile
-
-            image.save()
-        return redirect('hood')
-
-    else:
-        form = EditHoodForm()
-    return render(request, 'edit_hood.html', {'form': form})
-
-
-def joinhood(request, id):
-    hood = get_object_or_404(Neighbourhood, id=id)
-    request.user.profile.neighbourhood = hood
+    return render(request,'one_hood.html',{'hood':hood, 'businesses':businesses, 'posts':posts}) 
+    
+def join_hood(request,id):
+    neighborhood = get_object_or_404(NeighborHood, id=id)
+    
+    request.user.profile.neighborhood = neighborhood
     request.user.profile.save()
     return redirect('hood')
 
-
-def leavehood(request, id):
-    hood = get_object_or_404(Neighbourhood, id=id)
-    request.user.profile.neighbourhood = None
+def leave_hood(request, id):
+    hood = get_object_or_404(NeighborHood, id=id)
+    request.user.profile.neighborhood = None
     request.user.profile.save()
     return redirect('hood')
-
 
 @login_required(login_url='/accounts/login/')
 def singlehood(request, id):
@@ -138,49 +83,179 @@ def singlehood(request, id):
     return render(request, 'singlehood.html', {'hood':hood})
 
 
-@login_required(login_url='/accounts/login/')
-def businesses(request, id):
-    business = Business. hood_biz(id=id)
-    return render(request, 'business.html', {'business': business})
 
-
-@login_required(login_url='/accounts/login/')
-def newbiz(request):
+@login_required(login_url="/accounts/login/")
+def businesses(request):
     current_user = request.user
-    if request.method == 'POST':
-        form = NewBizForm(request.POST, request.FILES)
-        if form.is_valid():
-            business = form.save(commit=False)
-            business.user = current_user
+    businesses = Business.objects.all().order_by('-id')
+    
+    profile = Profile.objects.filter(user_id=current_user.id).first()
 
-            business.save()
-
-        return redirect('hood')
-
+    if profile is None:
+        profile = Profile.objects.filter(
+            user_id=current_user.id).first()
+        
+        locations = Location.objects.all()
+        neighborhood = NeighborHood.objects.all()
+        
+        businesses = Business.objects.all().order_by('-id')
+        
+        return render(request, "profile.html", {"danger": "Update Profile", "locations": locations, "neighborhood": neighborhood, "businesses": businesses})
     else:
-        form = NewBizForm()
-    return render(request, 'newbiz.html', {"form": form})
+        neighborhood = profile.neighborhood
+        businesses = Business.objects.all().order_by('-id')
+        return render(request, "businesses.html", {"businesses": businesses})
 
-
-@login_required(login_url='/accounts/login/')
-def posthood(request, id):
-    post = Post.hood_post(id=id)
-    return render(request, 'hoodpost.html', {'post': post})
-
-
-@login_required(login_url='/accounts/login/')
-def post(request):
+@login_required(login_url="/accounts/login/")
+def new_business(request):
     current_user = request.user
-    if request.method == 'POST':
-        form = NewPostForm(request.POST, request.FILES)
+    if request.method == "POST":
+        
+        form=BusinessForm(request.POST,request.FILES)
+
+        if form.is_valid():
+            business=form.save(commit=False)
+            business.user=current_user
+            business.hood= hood
+            business.save()
+        return HttpResponseRedirect('/businesses')
+    else:
+        form=BusinessForm()
+    return render (request,'business_form.html', {'form': form, 'profile': profile})
+
+
+
+# authorities
+@login_required(login_url='/accounts/login/')
+def authorities(request):
+    current_user=request.user
+    profile = Profile.objects.filter(user_id=current_user.id).first()
+   
+    authorities = Authorities.objects.all().order_by('-id')
+    return render(request,'authorities.html',{"authorities":authorities, 'profile':profile})
+
+# create_authorities
+@login_required(login_url="/accounts/login/")
+def create_authorities(request):
+    current_user = request.user
+    if request.method == "POST":
+        
+        form=AuthoritiesForm(request.POST,request.FILES)
+
+        if form.is_valid():
+            authority=form.save(commit=False)
+            authority.user=current_user
+            authority.hood= hood
+            authority.save()
+        return HttpResponseRedirect('/authorities')
+    else:
+        form=AuthoritiesForm()
+    return render (request,'authorities_form.html', {'form': form, 'profile': profile})
+
+# health
+@login_required(login_url='/accounts/login/')
+def health(request):
+    current_user=request.user
+    profile = Profile.objects.filter(user_id=current_user.id).first()
+   
+    health = Health.objects.all().order_by('-id')
+
+    return render(request,'health.html',{"health":health,"profile":profile})
+
+
+
+
+# blogpost
+@login_required(login_url="/accounts/login/")
+def create_post(request):
+    current_user = request.user
+    if request.method == "POST":
+        form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.user = current_user
-
             post.save()
 
-        return redirect('hood')
+        return HttpResponseRedirect('/post')
+    else:
+        form = PostForm()
+    return render(request, "create_post.html", {'form':form})
+
+@login_required(login_url="/accounts/login/")
+def post(request):
+    current_user = request.user
+    post = Post.objects.all().order_by('-id')
+    return render(request, 'posts.html', {'posts': post})
+
+
+# view_blog
+@login_required(login_url='/accounts/login/')
+def view_blog(request,id):
+    current_user = request.user
+
+    try:
+        comments = Comment.objects.filter(post_id=id)
+    except:
+        comments =[]
+
+    blog = Post.objects.get(id=id)
+    if request.method =='POST':
+        form = CommentForm(request.POST,request.FILES)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.username = current_user
+            comment.post = blog
+            comment.save()
+    else:
+        form = CommentForm()
+
+    return render(request,'view_blog.html',{"blog":blog,"form":form,"comments":comments})
+
+# new blogposts
+@login_required(login_url='/accounts/login/')
+def new_blogpost(request):
+    current_user=request.user
+    profile =Profile.objects.get(username=current_user)
+
+    if request.method=="POST":
+        form =PostForm(request.POST,request.FILES)
+        if form.is_valid():
+            blogpost = form.save(commit = False)
+            blogpost.username = current_user
+            blogpost.neighborhood = profile.neighborhood
+            blogpost.avatar = profile.avatar
+            blogpost.save()
+
+        return HttpResponseRedirect('/blog')
 
     else:
-        form = NewPostForm()
-    return render(request, 'post.html', {"form": form})
+        form = PostForm()
+
+    return render(request,'blogpost_form.html',{"form":form})
+
+
+    # search
+@login_required(login_url='/accounts/login/')
+def search_results(request):
+    if 'post' in request.GET and request.GET["post"]:
+        search_term = request.GET.get("post")
+        searched_posts = Post.search_post(search_term)
+        message=f"{search_term}"
+
+        print(searched_posts)
+
+        return render(request,'search.html',{"message":message,"blogs":searched_posts})
+
+    else:
+        message="You haven't searched for any term"
+        return render(request,'search.html',{"message":message})
+
+
+# health
+# @login_required(login_url='/accounts/login/')
+# def health(request):
+#     current_user=request.user
+#     profile=Profile.objects.get(username=current_user)
+#     healthservices = Health.objects.filter(neighborhood=profile.neighborhood)
+
+#     return render(request,'health.html',{"healthservices":healthservices})
