@@ -77,10 +77,10 @@ def leave_hood(request, id):
     request.user.profile.save()
     return redirect('hood')
 
-@login_required(login_url='/accounts/login/')
-def singlehood(request, id):
-    hood = Neighbourhood.objects.get(id=id)
-    return render(request, 'singlehood.html', {'hood':hood})
+# @login_required(login_url='/accounts/login/')
+# def singlehood(request, id):
+#     hood = neighbourhood.objects.get(id=id)
+#     return render(request, 'singlehood.html', {'hood':hood})
 
 
 
