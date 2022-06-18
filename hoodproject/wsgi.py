@@ -1,5 +1,5 @@
 """
-WSGI config for hood project.
+WSGI config for hoodproject.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
