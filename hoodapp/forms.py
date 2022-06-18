@@ -1,48 +1,40 @@
+from django.db.models import fields
+from .models import  Profile, NeighborHood, Business, Authorities, Post, Comment
+from django.forms import ModelForm
 from django import forms
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
-from .models import Profile,Neighbourhood,Business,Post
-
-class SignUpForm(UserCreationForm):
-    username = forms.CharField(max_length=50)
-    email = forms.CharField(max_length=60)
-
-    class Meta:
-        model = User
-        fields = ('username','email','password1','password2')
 
 
-
-class UserUpdateForm(forms.ModelForm):
-    email = forms.EmailField()
-
-    class Meta:
-        model = User
-        fields = ['username','email']
-
-class ProfileUpdateForm(forms.ModelForm):
+class ProfileForm(ModelForm):
     class Meta:
         model = Profile
-        fields =['profile_pic', 'bio']
+        exclude = ['user']
 
-
-class NewHoodForm(forms.ModelForm):
+class UpdateProfileForm(forms.ModelForm):
     class Meta:
-        model = Neighbourhood
-        exclude = ('admin',)
+        model = Profile
+        fields = ('bio', 'profile_photo','contact','location','neighborhood')
 
-class EditHoodForm(forms.ModelForm):
+class HoodForm(forms.ModelForm):
     class Meta:
-        model = Neighbourhood
-        exclude = ('admin',)
+        model=NeighborHood
+        fields = ['photo','name','content','occupants_count','location']
 
-class NewBizForm(forms.ModelForm):
+class BusinessForm(forms.ModelForm):
     class Meta:
-        model = Business
-        exclude = ('user',)
+        model=Business
+        fields = ['logo','content','neighborhood','location','name','email','address','contact']
 
+class AuthoritiesForm(forms.ModelForm):
+    class Meta:
+        model=Authorities
+        fields = ['photo','neighborhood','name','location','content','email','contact','address']
 
-class NewPostForm(forms.ModelForm):
+class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        exclude = ('user',)
+        exclude = ('user', 'location')
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model=Comment
+        exclude=['username','post']
