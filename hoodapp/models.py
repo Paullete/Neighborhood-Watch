@@ -99,4 +99,27 @@ class Post(models.Model):
         self.save()
 
     def delete_post(self):
+        self.delete()        
+class Authorities(models.Model):
+    name = models.CharField(max_length=50)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,default = '')
+    email = models.CharField(max_length=100, default = '')
+    neighbourhood = models.ForeignKey("Neighbourhood",on_delete=models.CASCADE, default='', null=True, blank=True)
+    description = models.TextField( default = '')
+
+
+
+    def __str__(self):
+        return f'{self.name} authorities'
+
+
+    def save_authorities(self):
+        self.save()
+
+    def delete_authorities(self):
         self.delete()
+
+    @classmethod
+    def hood_authorities(cls, id):
+        hoodauthorities = Authorities.objects.filter(neighbourhood = id)
+        return hoodauthorities

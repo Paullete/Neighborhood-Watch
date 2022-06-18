@@ -14,6 +14,9 @@
     background-color: #595d64;
     color: whitesmoke;
     }
+    h3{
+        color:crimson
+    }
     
 </style>
 <br><br>
@@ -21,14 +24,14 @@
     <div class="box">
         <div class="text-center">
         <div class="title">
-            <h3>Create Authorities</h3>
+            <h3>New Business</h3>
         </div>
         <hr>
         </div>
-        <form action="{%url 'create_authorities'%}" method="post" enctype="multipart/form-data">
+        <form action="{%url 'new_business'%}" method="post" enctype="multipart/form-data">
             {%csrf_token%}    
             {% bootstrap_form form%}
-            <input type="submit" class="btn btn-dark " value="Create Authorities">
+            <input type="submit" class="btn btn-dark " value="New Business">
         </form>
     </div>
 </div>
