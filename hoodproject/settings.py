@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary',
     'bootstrap4',
     'hoodapp',
     'crispy_forms',
@@ -58,7 +59,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'hood.urls'
+ROOT_URLCONF = 'hoodproject.urls'
 
 TEMPLATES = [
     {
@@ -76,7 +77,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'hood.wsgi.application'
+WSGI_APPLICATION = 'hoodproject.wsgi.application'
 
 
 # Database
