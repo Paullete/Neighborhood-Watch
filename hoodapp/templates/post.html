@@ -1,23 +1,65 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
-{% load bootstrap4 %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    .card {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    .title {
+        color: grey;
+        font-size: 18px;
+    }
 
 
-{%block content%}
+    button:hover,
+    a:hover {
+        opacity: 0.7;
+    }
+</style>
+<div class="container-fluid">
 
-<div class="container">
-    <h3 class="text-center" style="font-family: 'Kanit', sans-serif;; padding-top:40px;">Add Post</h3>
-    <div class="col-sm-12 col-lg-6 m-auto card" style="background-color: beige;">
-        <form action="{%url 'post'%}" method="post" enctype="multipart/form-data">
-            {%csrf_token%}
-
-            {% bootstrap_form form%}
-            <input type="submit" class="btn default-color btn-lg btn-center" value="Post"><br><br>
-        </form>
+    <div class="row">
+        <div class="col-md-12 top-div" style="margin-top:40px;">
+            <h1 style="font-family: 'Joti One'; text-align:center;  color:white">Posts</h1>
+            <h3 style="text-align:center">Neighborhood Updates On...</h3>
     </div>
-    <br>
+    <div class="row">
+    {% for post in posts %}
+    <div class="col-md-4">
+
+        <div class="card">
+            <img src="{{ post.image.url }}" alt="post" style="width: 100%; height:50%;">
+            <p class="title">{{post.category}}</p>
+            <h4 style="font-family: 'Joti One'">{{post.title}}</h4>
+            {{post.content}}
+            <p>{{post.neighborhood}}</p>
+            <p>Posted on :<strong>{{ post.created_at|date }}</strong> by <strong>{{post.user}}</strong></p>
+            <br>
+            <br>
+        </div>
+    </div>
+    
+    {%endfor%}
+    </div>
+
+
+
+
+    
 </div>
 
+<style>
+    .bold {
+        font-weight: bold;
+    }
 
+    .container-fluid {
+        background-color: #0c3329;
+        color: black;
+    }
+</style>
 
-{% endblock %}
+{%endblock%}
