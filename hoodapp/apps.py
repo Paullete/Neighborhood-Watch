@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class NeibourConfig(AppConfig):
-    name = 'neibour'
+class HoodappConfig(AppConfig):
+    name = 'hoodapp'
