@@ -1,5 +1,5 @@
 <nav class="pl-5 pr-5 navbar navbar-expand-lg navbar-light sticky-top"
-  style=" font-family: 'Joti One'; height: 15vh;background-color:black; ">
+  style=" font-family: 'Joti One'; height: 15vh;background-color:#A5DDE2; ">
   
 
   <!-- Navbar brand -->
@@ -31,15 +31,15 @@
           <li>
             <a class="btn btn-default" href="{% url 'hood' %}">Hood</a>
           </li>
-          <li>
+          {% comment %} <li>
             <a class='btn btn-default' href="{% url 'businesses' %}">Business</a>
-          </li>
+          </li> {% endcomment %}
           <li>
             <a class='btn btn-default' href="{% url 'authorities' %}">Authorities</a>
           </li>
-          <li>
+          {% comment %} <li>
             <a class='btn btn-default' href="{% url 'post' %}">Post</a>
-          </li>
+          </li> {% endcomment %}
 
           <li>
             <a class='btn btn-default' href="{% url 'health' %}">Health Services</a>
